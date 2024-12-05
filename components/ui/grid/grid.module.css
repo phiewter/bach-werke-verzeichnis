@@ -16,8 +16,8 @@
   --guide-width: 1px;
   --horizontal-margin: 2rem;
   --grid-system-width: 100vw;
-  --guide-color: blue;
-  --cross-color: green;
+  --guide-color: #ebebeb; /* #ebebeb */
+  --cross-color: #a8a8a8; /* #a8a8a8 */
   display: flex;
   position: relative;
   flex-direction: column;
@@ -28,11 +28,11 @@
 }
 
 .systemDebug {
-  --debug-color: purple;
-  --debug-guide-color: purple;
-  --debug-block-color: purple;
-  --debug-hidden-guide-color: purple;
-  --guide-color: purple;
+  --debug-color: red;
+  --debug-guide-color: red;
+  --debug-block-color: red;
+  --debug-hidden-guide-color: red;
+  --guide-color: red;
 }
 
 .systemDebug .block {
@@ -47,7 +47,7 @@
   border-bottom: var(--guide-width) dashed var(--debug-hidden-guide-color) !important;
 }
 
-.systemDebugOverlag::before {
+.systemDebugOverlay::before {
   display: flex;
   border: 1px dashed var(--guide-color);
   background: pink;
@@ -126,7 +126,7 @@
   grid-row-start: var(--cross-row);
   z-index: 2;
   --cross-size: 21px;
-  --cross-half-size: calc(var(--cross-size) / 2) + var(--guide-width) - 0.5px;
+  --cross-half-size: calc((var(--cross-size) / 2) + var(--guide-width) - 0.5px);
   inset: calc(var(--cross-half-size) * -1);
 }
 
@@ -134,6 +134,19 @@
   position: absolute;
   border: var(--guide-width) solid var(--cross-color);
   border-width: 0;
+}
+
+.circle {
+  width: var(--circle-size);
+  height: var(--circle-size);
+  border: var(--guide-width) solid var(--cross-color);
+  border-radius: 9999%;
+  pointer-events: none;
+  position: absolute;
+  grid-column-start: var(--cross-column);
+  grid-row-start: var(--cross-row);
+  z-index: 2;
+  --circle-size: 21px;
 }
 
 .line {
@@ -152,7 +165,9 @@
 .line .lineVertical {
   left: var(--line-left);
   border-bottom: none;
-  margin-left: 1px; /* POTENTIAL CHANGE: var(--guide-width) */
+  margin-left: var(
+    --guide-width
+  ); /* 1px, POTENTIAL CHANGE: var(--guide-width) */
   border-left: var(--guide-width) solid var(--guide-color);
   height: calc(100% - var(--line-top));
   width: 0;
@@ -185,6 +200,7 @@
   grid-column: var(--grid-column);
   display: var(--block-display);
   padding: var(--cell-padding);
+  aspect-ratio: 1/1;
 }
 
 .block > div {
@@ -380,7 +396,7 @@
   .mdGuide,
   .smGuide,
   .smdGuide {
-    display: none;
+    display: grid;
   }
 }
 
