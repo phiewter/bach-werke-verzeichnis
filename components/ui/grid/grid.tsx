@@ -4,19 +4,24 @@ import { cn } from "@/lib/utils";
 
 import styles from "@/components/ui/grid/grid.module.css";
 
-// TODO: Fix 'ResponsiveBreakpoints' for Grid
-type ResponsiveBreakpoints = {
-  xs?: number;
-  sm?: number;
-  md?: number;
-  lg?: number;
-};
+import { breakpoints } from "@/lib/data";
+
+import { handleColumns } from "@/actions/GridActions";
+
+// type HeightOption = "preserve-aspect-ratio";
 
 interface GridProps {
-  rows: number;
-  columns: number;
+  columns:
+    | number
+    | { xs?: number; sm?: number; smd?: number; md?: number; lg?: number };
+  rows:
+    | number
+    | { xs?: number; sm?: number; smd?: number; md?: number; lg?: number };
+  // height?: HeightOption;
   children: React.ReactElement<GridCellProps>[];
 }
+
+// const validHeight: HeightOption = "preserve-aspect-ratio";
 
 const Grid: React.FC<GridProps> & {
   SystemContentWrapper: React.FC<GridSystemContentWrapperProps>;
@@ -27,20 +32,54 @@ const Grid: React.FC<GridProps> & {
   Guides: React.FC<GridGuidesProps>;
   Guide: React.FC<GridGuideProps>;
   Divider: React.FC<GridDividerProps>;
-} = ({ rows, columns, children }: GridProps) => {
+} = ({ columns, rows, children }: GridProps) => {
+  // const isValidHeight = height && validHeight.includes(height as HeightOption);
+  // const setHeight = isValidHeight
+  //   ? "calc(var(--width) / var(--grid-columns) * var(--grid-rows))"
+  //   : undefined;
+
+  const handleRows = (rows: GridProps["rows"]): React.CSSProperties => {
+    const style: React.CSSProperties & Record<string, string | number> = {};
+
+    if (typeof rows === "number") {
+      style["--grid-rows"] = rows;
+    } else {
+      breakpoints.forEach((breakpoint) => {
+        if (rows[breakpoint] !== undefined) {
+          style[`--${breakpoint}-grid-rows`] = rows[breakpoint]!;
+        }
+      });
+    }
+    return style;
+  };
+
+  const handleColumns = (
+    columns: GridProps["columns"]
+  ): React.CSSProperties => {
+    const style: React.CSSProperties & Record<string, string | number> = {};
+
+    if (typeof columns === "number") {
+      style["--grid-columns"] = columns;
+    } else {
+      breakpoints.forEach((breakpoint) => {
+        if (columns[breakpoint] !== undefined) {
+          style[`--${breakpoint}-grid-columns`] = columns[breakpoint]!;
+        }
+      });
+    }
+    return style;
+  };
+
+  const combinedStyle = {
+    ...handleColumns(columns),
+    ...handleRows(rows),
+  };
+
   return (
-    <div
-      className={cn(`${styles.grid}`)}
-      style={
-        {
-          "--grid-rows": rows,
-          "--grid-columns": columns,
-        } as React.CSSProperties
-      }
-    >
+    <div className={cn(`${styles.grid}`)} style={combinedStyle} data-grid>
       {children}
       <Grid.Guides>
-        {Array.from({ length: rows * columns }, (_, index) => {
+        {Array.from({ length: columns * rows }, (_, index) => {
           const x = (index % columns) + 1;
           const y = Math.floor(index / columns) + 1;
           return (
@@ -103,7 +142,7 @@ interface GridCellProps {
   children?: React.ReactNode;
 }
 
-Grid.Cell = ({ row, column, children }: GridCellProps) => {
+Grid.Cell = ({ column, row, children }: GridCellProps) => {
   return (
     <div
       className={cn(`${styles.block}`)}
@@ -171,7 +210,7 @@ Grid.Guide = ({ children, className, style }) => {
   return (
     <div
       className={cn(
-        `${styles.guide} ${styles.xsGuide} ${styles.smGuide} ${styles.mdGuide} ${styles.lgGuide}`,
+        `${styles.guide} ${styles.smGuide} ${styles.smdGuide} ${styles.lgGuide}`,
         className
       )}
       style={style}
